@@ -70,7 +70,7 @@ const ProfileSidebar = () => {
           height: 120,
           borderRadius: 12,
           position: "relative",
-          marginBottom: 20,
+          marginBottom: 40,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -125,7 +125,7 @@ const ProfileSidebar = () => {
             margin: "0 0 8px 0",
           }}
         >
-          {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+            {user ? `Dr. ${user.firstName} ${user.lastName}` : 'Loading...'}
         </h2>
         <p style={{ fontSize: 14, color: "#64748b", margin: 0, lineHeight: 1.5 }}>
           {user ? user.specialization : ''}
@@ -228,44 +228,44 @@ const ProfileSidebar = () => {
     </div>
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {[
-          {
-            icon: <Heart size={16} color="#64748b" />,
-            label: "Specialization:",
-            value: "Cardiology",
-          },
-          {
-            icon: <MapPin size={16} color="#64748b" />,
-            label: "Hospital:",
-            value: "St. Judes Medical Center",
-          },
-          {
-            icon: <GraduationCap size={16} color="#64748b" />,
-            label: "Education:",
-            value: "Harvard University",
-          },
-          {
-            icon: <MapPin size={16} color="#64748b" />,
-            label: "Location:",
-            value: "Boston, MA",
-          },
-          {
-            icon: <Clock size={16} color="#64748b" />,
-            label: "Experience:",
-            value: "12 years",
-          },
-        ].map((item, idx) => (
-          <div
-            key={idx}
-            style={{ display: "flex", alignItems: "center", gap: 8 }}
-          >
-            {item.icon}
-            <span style={{ fontSize: 14, color: "#64748b" }}>{item.label}</span>
-            <span style={{ fontSize: 14, color: "#1e293b", fontWeight: 500 }}>
-              {item.value}
-            </span>
-          </div>
-        ))}
+      {[
+        {
+        icon: <Heart size={16} color="#64748b" />,
+        label: "Specialization:",
+        value: user?.specialization || "N/A",
+        },
+        {
+        icon: <MapPin size={16} color="#64748b" />,
+        label: "Hospital:",
+        value: user?.hospital || "N/A",
+        },
+        {
+        icon: <GraduationCap size={16} color="#64748b" />,
+        label: "Education:",
+        value: user?.education || "N/A",
+        },
+        {
+        icon: <MapPin size={16} color="#64748b" />,
+        label: "Location:",
+        value: user?.location || "N/A",
+        },
+        {
+        icon: <Clock size={16} color="#64748b" />,
+        label: "Experience:",
+        value: user?.experience || "N/A",
+        },
+      ].map((item, idx) => (
+        <div
+        key={idx}
+        style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+        {item.icon}
+        <span style={{ fontSize: 14, color: "#64748b" }}>{item.label}</span>
+        <span style={{ fontSize: 14, color: "#1e293b", fontWeight: 500 }}>
+          {item.value}
+        </span>
+        </div>
+      ))}
       </div>
     </div>
     <div
@@ -293,28 +293,28 @@ const ProfileSidebar = () => {
     </div>
     <div>
       <h3
-        style={{
-          fontSize: 16,
-          fontWeight: 600,
-          color: "#1e293b",
-          marginBottom: 12,
-        }}
+      style={{
+        fontSize: 16,
+        fontWeight: 600,
+        color: "#1e293b",
+        marginBottom: 12,
+      }}
       >
-        Contact
+      Contact
       </h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Mail size={16} color="#64748b" />
-          <span style={{ fontSize: 14, color: "#64748b" }}>
-            elias.chen@stjudes.com
-          </span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Phone size={16} color="#64748b" />
-          <span style={{ fontSize: 14, color: "#64748b" }}>
-            +1 (617) 555-0123
-          </span>
-        </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Mail size={16} color="#64748b" />
+        <span style={{ fontSize: 14, color: "#64748b" }}>
+        {user?.email || "N/A"}
+        </span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <Phone size={16} color="#64748b" />
+        <span style={{ fontSize: 14, color: "#64748b" }}>
+        {user?.phone || "N/A"}
+        </span>
+      </div>
       </div>
     </div>
   </div>
@@ -548,212 +548,339 @@ const PostForm = () => {
   );
 };
 
-const CaseStudyList = () => (
-  <div
-    style={{
-      backgroundColor: "#fff",
-      borderRadius: 16,
-      padding: 24,
-      boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-      border: "1px solid #f0f4f8",
-      width: "100%",
-      minWidth: 0,
-      marginBottom: 24,
-      boxSizing: "border-box",
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
+const CaseStudyList = () => {
+  const [studies, setStudies] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      import('../../utils/api').then(apiModule => {
+        apiModule.default.get('/cases?limit=5',
+          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+        )
+          .then(res => {
+            // Adjust according to your backend response structure
+            // If your backend returns { data: { cases: [...] } }
+            // setStudies(res.data.data.cases || []);
+            // If your backend returns { data: [...] }
+            setStudies(res.data?.data?.cases || res.data?.cases || res.data || []);
+          })
+          .catch(() => setStudies([]))
+          .finally(() => setLoading(false));
+      });
+  }, []);
+
+  return (
     <div
       style={{
+        backgroundColor: "#fff",
+        borderRadius: 16,
+        padding: 24,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        border: "1px solid #f0f4f8",
+        width: "100%",
+        minWidth: 0,
+        marginBottom: 24,
+        boxSizing: "border-box",
+        flex: 1,
         display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        marginBottom: 20,
+        flexDirection: "column",
       }}
     >
-      <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}>
-        Recent Case Studies
-      </h2>
-      <div style={{ display: "flex", gap: 12 }}>
-        <button
-          style={{
-            color: "#0ea5e9",
-            fontSize: 14,
-            fontWeight: 600,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}
-        >
-          Newest →
-        </button>
-        <button
-          style={{
-            color: "#10b981",
-            fontSize: 14,
-            fontWeight: 600,
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            textDecoration: "underline",
-          }}
-        >
-          View All
-        </button>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <h2 style={{ fontSize: 20, fontWeight: 700, color: "#1e293b" }}>
+          Recent Case Studies
+        </h2>
+        <div style={{ display: "flex", gap: 12 }}>
+          <button
+            style={{
+              color: "#0ea5e9",
+              fontSize: 14,
+              fontWeight: 600,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Newest →
+          </button>
+          <button
+            style={{
+              color: "#10b981",
+              fontSize: 14,
+              fontWeight: 600,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            View All
+          </button>
+        </div>
       </div>
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#64748b", padding: 24 }}>
+          Loading case studies...
+        </div>
+      ) : (
+        <RecentCaseStudies studies={studies} />
+      )}
     </div>
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      {[
-        {
-          title: "Pediatric Cardiology",
-          date: "Oct 3, 29, 2325 • 4.99 yrs",
-          content: "John Nechistuaraec ou(su)cfdo pccdewttc.",
-          likes: 516,
-          comments: 4,
-          shares: 6,
-          isPublic: true,
-        },
-        {
-          title: "Pediatric Cardiology",
-          date: "Oct 2, 24, 2328 • 4.38 yrs",
-          content: "Yanen thosenwiscce or poincisende (Taol).",
-          likes: 2519,
-          comments: 6,
-          shares: 3,
-          isPublic: false,
-        },
-        {
-          title: "Pediatric Cardiology",
-          date: "Oct 2, 25, 2333 • 4.22 yrs",
-          content: "Pediatric cardiology constradatisao...",
-          likes: 892,
-          comments: 12,
-          shares: 8,
-          isPublic: true,
-        },
-      ].map((study, idx) => (
-        <div
-          key={idx}
-          style={{
-            padding: 16,
-            border: "1px solid #f1f5f9",
-            borderRadius: 12,
-            backgroundColor: "#fafbfc",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                backgroundColor: "#e0f2fe",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 16,
-                fontWeight: "bold",
-                color: "#0284c7",
-                flexShrink: 0,
-              }}
-            >
-              EC
-            </div>
-            <div style={{ flex: 1 }}>
+  );
+};
+
+const RecentCaseStudies = ({ studies }: { studies: any[] }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [activeCase, setActiveCase] = React.useState<any>(null);
+
+  const handleOpenDiscussion = (study: any) => {
+    setActiveCase(study);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setActiveCase(null);
+  };
+  if (!studies || studies.length === 0) {
+    return (
+      <div style={{ textAlign: "center", color: "#64748b", padding: 24 }}>
+        No case studies found.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {studies.map((study, idx) => (
+          <div
+            key={study._id || idx}
+            style={{
+              padding: 16,
+              border: "1px solid #f1f5f9",
+              borderRadius: 12,
+              backgroundColor: "#fafbfc",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
               <div
                 style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  backgroundColor: "#e0f2fe",
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  marginBottom: 8,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 16,
+                  fontWeight: "bold",
+                  color: "#0284c7",
+                  flexShrink: 0,
                 }}
               >
-                <div>
-                  <h3
+                {study.authorInitials ||
+                  (study.doctor?.firstName && study.doctor?.lastName
+                    ? `${study.doctor.firstName[0]}${study.doctor.lastName[0]}`
+                    : "DR")}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: 8,
+                  }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: "#1e293b",
+                        margin: "0 0 4px 0",
+                      }}
+                    >
+                      {study.title}
+                    </h3>
+                    <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+                      {study.date ||
+                        study.createdAt?.slice(0, 10) ||
+                        study.createdAt}
+                    </p>
+                  </div>
+                  <button
                     style={{
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: "#1e293b",
-                      margin: "0 0 4px 0",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 4,
                     }}
                   >
-                    {study.title}
-                  </h3>
-                  <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-                    {study.date}
-                  </p>
+                    •••
+                  </button>
                 </div>
-                <button
+                <p
                   style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 4,
+                    fontSize: 14,
+                    color: "#374151",
+                    margin: "0 0 12px 0",
                   }}
                 >
-                  •••
-                </button>
-              </div>
-              <p
-                style={{ fontSize: 14, color: "#374151", margin: "0 0 12px 0" }}
-              >
-                {study.content}
-              </p>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ display: "flex", gap: 16 }}>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 4 }}
-                  >
-                    <Heart size={16} color="#64748b" />
-                    <span style={{ fontSize: 14, color: "#64748b" }}>
-                      {study.likes}
-                    </span>
-                  </div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 4 }}
-                  >
-                    <MessageCircle size={16} color="#64748b" />
-                    <span style={{ fontSize: 14, color: "#64748b" }}>
-                      {study.comments}
-                    </span>
-                  </div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 4 }}
-                  >
-                    <Share2 size={16} color="#64748b" />
-                    <span style={{ fontSize: 14, color: "#64748b" }}>
-                      {study.shares}
-                    </span>
-                  </div>
-                </div>
-                <span
+                  {study.description || study.content}
+                </p>
+                <div
                   style={{
-                    padding: "4px 8px",
-                    borderRadius: 12,
-                    fontSize: 12,
-                    fontWeight: 500,
-                    backgroundColor: study.isPublic ? "#dbeafe" : "#dcfce7",
-                    color: study.isPublic ? "#1e40af" : "#166534",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
-                  {study.isPublic ? "Public" : "Private"}
-                </span>
+                  <div style={{ display: "flex", gap: 16 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <Heart size={16} color="#64748b" />
+                      <span style={{ fontSize: 14, color: "#64748b" }}>
+                        {Array.isArray(study.likes) ? study.likes.length : (typeof study.likes === 'number' ? study.likes : 0)}
+                      </span>
+                    </div>
+                    <button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: 0,
+                      }}
+                      onClick={() => handleOpenDiscussion(study)}
+                      title="View and join discussion"
+                    >
+                      <MessageCircle size={16} color="#64748b" />
+                      <span style={{ fontSize: 14, color: "#64748b" }}>
+                        {Array.isArray(study.comments) ? study.comments.length : (typeof study.comments === 'number' ? study.comments : 0)}
+                      </span>
+                    </button>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      <Share2 size={16} color="#64748b" />
+                      <span style={{ fontSize: 14, color: "#64748b" }}>
+                        {typeof study.shares === 'number' ? study.shares : (typeof study.shareCount === 'number' ? study.shareCount : 0)}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    style={{
+                      padding: "4px 8px",
+                      borderRadius: 12,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      backgroundColor: study.isPublic ? "#dbeafe" : "#dcfce7",
+                      color: study.isPublic ? "#1e40af" : "#166534",
+                    }}
+                  >
+                    {study.isPublic ? "Public" : "Private"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+        ))}
+      </div>
+      {modalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(30,41,59,0.25)",
+            zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          onClick={handleCloseModal}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              padding: 32,
+              minWidth: 340,
+              maxWidth: 480,
+              boxShadow: "0 8px 32px rgba(30,41,59,0.12)",
+              position: "relative",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                background: "none",
+                border: "none",
+                fontSize: 20,
+                cursor: "pointer",
+                color: "#64748b",
+              }}
+              onClick={handleCloseModal}
+              title="Close"
+            >
+              ×
+            </button>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "#1e293b", marginBottom: 12 }}>
+              Discussion: {activeCase?.title}
+            </h2>
+            <div style={{ marginBottom: 16, color: "#64748b", fontSize: 14 }}>
+              {activeCase?.description || activeCase?.content}
+            </div>
+            <div style={{ maxHeight: 220, overflowY: "auto", marginBottom: 16 }}>
+              {Array.isArray(activeCase?.comments) && activeCase.comments.length > 0 ? (
+                activeCase.comments.map((comment: any, idx: number) => (
+                  <div key={comment._id || idx} style={{ marginBottom: 12, padding: 8, background: "#f8fafc", borderRadius: 8 }}>
+                    <div style={{ fontWeight: 600, color: "#0284c7", marginBottom: 4 }}>
+                      {comment.author?.firstName || "User"} {comment.author?.lastName || ""}
+                    </div>
+                    <div style={{ fontSize: 13, color: "#374151" }}>{comment.content}</div>
+                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+                      {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : ""}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "#64748b", fontSize: 13 }}>No discussion yet.</div>
+              )}
+            </div>
+            {/* Add reply box or actions here if needed */}
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-);
+      )}
+    </>
+  );
+};
 
 const RecentUpdatesSection = () => (
   <div
@@ -945,18 +1072,51 @@ type Doctor = {
   firstName?: string;
   lastName?: string;
   specialization?: string;
+  email?: string;
+  phone?: string;
+  hospital?: string;
+  education?: string;
+  location?: string;
+  experience?: string;
 };
 
 const RecommendedConnections = () => {
+  const [following, setFollowing] = React.useState<string[]>([]);
   const [doctors, setDoctors] = React.useState<Doctor[]>([]);
   React.useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     import('../../utils/api').then(apiModule => {
       apiModule.default.get('/users/leaderboard?userType=doctor&limit=10')
         .then(res => {
           setDoctors(res.data.data.leaderboard || []);
         });
+      if (token) {
+        apiModule.default.get('/users/connections', {
+          headers: { Authorization: `Bearer ${token}` }
+        }).then(res => {
+          setFollowing((res.data.following || []).map((u: any) => u._id));
+        });
+      }
     });
   }, []);
+  const handleFollow = async (doctorId: string) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    await import('../../utils/api').then(apiModule =>
+      apiModule.default.post('/users/follow', { userId: doctorId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    );
+    setFollowing((prev) => [...prev, doctorId]);
+  };
+  const handleUnfollow = async (doctorId: string) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    await import('../../utils/api').then(apiModule =>
+      apiModule.default.post('/users/unfollow', { userId: doctorId }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+    );
+    setFollowing((prev) => prev.filter((id) => id !== doctorId));
+  };
   return (
     <div
       style={{
@@ -991,106 +1151,106 @@ const RecommendedConnections = () => {
           scrollbarColor: "#e0e8f0 #fff",
         }}
       >
-        {doctors.slice(0, 5).map((doctor, idx) => (
-          <React.Fragment key={idx}>
-            <div
-              key={doctor._id}
-              style={{
-                minWidth: 180,
-                maxWidth: 220,
-                backgroundColor: "#fafbfc",
-                border: "1px solid #f1f5f9",
-                borderRadius: 12,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                padding: "16px 12px",
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 8,
-              }}
-            >
+        {doctors.slice(0, 5).map((doctor, idx) => {
+          const isFollowing = following.includes(doctor._id);
+          return (
+            <div key={doctor._id} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
               <div
                 style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  backgroundColor: "#e0f2fe",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#0284c7",
-                  marginBottom: 8,
-                }}
-              >
-                {doctor.firstName && doctor.lastName
-                  ? `${doctor.firstName[0]}${doctor.lastName[0]}`
-                  : doctor.firstName || doctor.lastName || "DR"}
-              </div>
-              <h4
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "#1e293b",
-                  margin: "0 0 2px 0",
-                }}
-              >
-                Dr. {doctor.firstName} {doctor.lastName}
-              </h4>
-              <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
-                {doctor.specialization}
-              </p>
-              <button
-                style={{
-                  width: "100%",
-                  padding: "6px 12px",
-                  backgroundColor: "#10b981",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  marginTop: 8,
-                }}
-                onClick={async () => {
-                  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-                  await import('../../utils/api').then(apiModule =>
-                    apiModule.default.post('/users/follow', { userId: doctor._id }, {
-                      headers: { Authorization: `Bearer ${token}` }
-                    })
-                  );
-                  // Optionally show feedback or update UI
-                }}
-              >
-                Connect
-              </button>
-            </div>
-            {idx === 4 && (
-              <button
-                style={{
-                  minWidth: 100,
-                  height: 48,
-                  alignSelf: "center",
-                  background: "#e0e8f0",
-                  color: "#1e293b",
-                  border: "none",
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  fontSize: 14,
-                  cursor: "pointer",
-                  marginLeft: 8,
+                  minWidth: 180,
+                  maxWidth: 220,
+                  backgroundColor: "#fafbfc",
+                  border: "1px solid #f1f5f9",
+                  borderRadius: 12,
                   boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  padding: "16px 12px",
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 8,
                 }}
-                title="Show more connections"
               >
-                More →
-              </button>
-            )}
-          </React.Fragment>
-        ))}
+                <div
+                  style={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "50%",
+                    backgroundColor: "#e0f2fe",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 18,
+                    fontWeight: "bold",
+                    color: "#0284c7",
+                    marginBottom: 8,
+                  }}
+                >
+                  {doctor.firstName && doctor.lastName
+                    ? `${doctor.firstName[0]}${doctor.lastName[0]}`
+                    : doctor.firstName || doctor.lastName || "DR"}
+                </div>
+                <h4
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#1e293b",
+                    margin: "0 0 2px 0",
+                  }}
+                >
+                  Dr. {doctor.firstName} {doctor.lastName}
+                </h4>
+                <p style={{ fontSize: 12, color: "#64748b", margin: 0 }}>
+                  {doctor.specialization}
+                </p>
+                <button
+                  style={{
+                    width: "100%",
+                    padding: "6px 12px",
+                    backgroundColor: isFollowing ? "#64748b" : "#10b981",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    marginTop: 8,
+                  }}
+                  onClick={async () => {
+                    if (isFollowing) {
+                      await handleUnfollow(doctor._id);
+                    } else {
+                      await handleFollow(doctor._id);
+                    }
+                  }}
+                >
+                  {isFollowing ? "Connected" : "Connect"}
+                </button>
+              </div>
+              {idx === 4 && (
+                <button
+                  style={{
+                    minWidth: 100,
+                    height: 48,
+                    alignSelf: "center",
+                    background: "#e0e8f0",
+                    color: "#1e293b",
+                    border: "none",
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    fontSize: 14,
+                    cursor: "pointer",
+                    marginLeft: 8,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  }}
+                  title="Show more connections"
+                >
+                  More →
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
