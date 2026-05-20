@@ -15,6 +15,7 @@ import userRoutes from './users';
 import integrationRoutes from './integration';
 import notificationRoutes from './notifications';
 import diseaseInsightRoutes from './diseaseInsights';
+import symptomRoutes from './symptoms';
 
 const router = Router();
 
@@ -44,6 +45,7 @@ router.get('/', (req: Request, res: Response) => {
       jobs: '/api/jobs',
       certificates: '/api/certificates',
       webinars: '/api/webinars',
+      symptoms: '/api/symptoms/extract',
       leaderboard: '/api/leaderboard',
       search: '/api/search'
     }
@@ -71,6 +73,7 @@ router.use('/certificates', certificateRoutes);
 router.use('/webinars', webinarRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/integration', integrationRoutes);
+router.use('/symptoms', symptomRoutes);
 router.use('/', enhancedRoutes);
 router.use('/research-papers', researchPaperRoutes);
 
