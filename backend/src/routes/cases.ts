@@ -22,6 +22,7 @@ import {
   rateComment
 } from '../controllers/caseController';
 import { authenticate } from '../middleware/auth';
+import { requirePermission } from '../middleware/permissions';
 
 const router = express.Router();
 
@@ -30,20 +31,20 @@ router.get('/', authenticate, getCases);
 router.get('/:id', authenticate, getCaseById);
 
 // Doctor only routes
-router.post('/', authenticate, createCase);
+router.post('/', authenticate, requirePermission('case:create'), createCase);
 router.get('/my/cases', authenticate, getMyCases);
-router.put('/:id', authenticate, updateCase);
-router.delete('/:id', authenticate, deleteCase);
+router.put('/:id', authenticate, requirePermission('case:update'), updateCase);
+router.delete('/:id', authenticate, requirePermission('case:delete'), deleteCase);
 
 // Interactive routes (all authenticated users)
-router.post('/:id/comments', authenticate, addComment);
-router.post('/:caseId/comments/:commentId/reply', authenticate, replyToComment);
+router.post('/:id/comments', authenticate, requirePermission('comment:create'), addComment);
+router.post('/:caseId/comments/:commentId/reply', authenticate, requirePermission('comment:create'), replyToComment);
 router.post('/:caseId/comments/:commentId/like', authenticate, likeComment);
-router.post('/:caseId/comments/:commentId/rate', authenticate, rateComment);
+router.post('/:caseId/comments/:commentId/rate', authenticate, requirePermission('rating:create'), rateComment);
 router.post('/:id/like', authenticate, toggleLike);
 
 // Follow-up routes
-router.post('/:id/follow-ups', authenticate, addFollowUp);
+router.post('/:id/follow-ups', authenticate, requirePermission('case:follow_up'), addFollowUp);
 router.get('/:id/follow-ups', authenticate, getCaseFollowUps);
 
 // AI suggestion routes
@@ -51,12 +52,12 @@ router.post('/:id/ai-suggestions', authenticate, generateAISuggestions);
 router.get('/:id/ai-suggestions', authenticate, getCaseAISuggestions);
 
 // Pin/unpin comments (doctor only)
-router.post('/:caseId/comments/:commentId/pin', authenticate, pinComment);
-router.post('/:caseId/comments/:commentId/unpin', authenticate, unpinComment);
+router.post('/:caseId/comments/:commentId/pin', authenticate, requirePermission('comment:moderate'), pinComment);
+router.post('/:caseId/comments/:commentId/unpin', authenticate, requirePermission('comment:moderate'), unpinComment);
 // Get all pinned comments for a case
 router.get('/:caseId/pinned-comments', getPinnedComments);
 // Toggle repost permission (case owner only)
-router.patch('/:id/repost-permission', authenticate, toggleRepostPermission);
+router.patch('/:id/repost-permission', authenticate, requirePermission('case:update'), toggleRepostPermission);
 // Repost a case (if allowed)
-router.post('/:id/repost', authenticate, repostCase);
+router.post('/:id/repost', authenticate, requirePermission('case:repost'), repostCase);
 export default router;

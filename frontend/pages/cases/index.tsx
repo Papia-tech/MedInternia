@@ -18,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CaseCard from '../../components/CaseCard';
 import api from "../../utils/api";
 import Link from "next/link";
+import { canUser } from "../../utils/permissions";
 
 import dynamic from 'next/dynamic';
 const CaseDiscussion = dynamic(() => import('./[id]'), { ssr: false });
@@ -28,6 +29,7 @@ export default function Cases() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
+  const [canCreateCases, setCanCreateCases] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -43,6 +45,16 @@ export default function Cases() {
         setError("Failed to fetch cases");
         setLoading(false);
       });
+
+    api
+      .get("/auth/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const userType = res.data?.data?.user?.userType;
+        setCanCreateCases(canUser(userType, "case:create"));
+      })
+      .catch(() => setCanCreateCases(false));
   }, []);
 
   if (loading) {
@@ -73,28 +85,30 @@ export default function Cases() {
           Discover, review, and contribute to real-world medical cases. Dive
           into interactive case studies and expand your clinical knowledge.
         </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{
-            mb: 2,
-            borderRadius: 3,
-            fontWeight: 700,
-            px: 4,
-            py: 1.2,
-            fontSize: "1.08rem",
-            boxShadow: "0 2px 8px #2193b044",
-            transition: "all 0.2s",
-            "&:hover": {
-              background: "#1565c0",
-              boxShadow: "0 4px 16px #2193b066",
-            },
-          }}
-          component={Link}
-          href="/cases/create"
-        >
-          + Create New Case
-        </Button>
+        {canCreateCases && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{
+              mb: 2,
+              borderRadius: 3,
+              fontWeight: 700,
+              px: 4,
+              py: 1.2,
+              fontSize: "1.08rem",
+              boxShadow: "0 2px 8px #2193b044",
+              transition: "all 0.2s",
+              "&:hover": {
+                background: "#1565c0",
+                boxShadow: "0 4px 16px #2193b066",
+              },
+            }}
+            component={Link}
+            href="/cases/create"
+          >
+            + Create New Case
+          </Button>
+        )}
       </Box>
       <Box
         sx={{
