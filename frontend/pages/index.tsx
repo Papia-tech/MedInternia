@@ -3,19 +3,19 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Box, Button, Typography, Paper, Stack, Container, Grid, IconButton } from '@mui/material';
 import { Search, PlayCircle, FolderOpen, Briefcase, Video, Award, ChevronRight, CheckCircle2, HeadphonesIcon, UserPlus } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
 
-  const fadeInUp = {
+  const fadeInUp: Variants = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } }
   };
 
-  const staggerContainer = {
+  const staggerContainer: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -56,7 +56,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <Container maxWidth="xl" sx={{ pt: { xs: 6, md: 12 }, pb: { xs: 8, md: 12 } }}>
         <Grid container spacing={6} alignItems="center">
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <motion.div initial="hidden" animate="visible" variants={fadeInUp}>
               <Typography variant="h1" fontWeight={800} sx={{ fontSize: { xs: '2.5rem', sm: '3.5rem', md: '4rem' }, color: '#1a202c', lineHeight: 1.15, mb: 3 }}>
                 Your Gateway to <br/>
@@ -90,7 +90,7 @@ export default function HomePage() {
               </Box>
             </motion.div>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}>
               <Box sx={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
                 {/* Decorative blob */}
@@ -143,7 +143,7 @@ export default function HomePage() {
               { title: 'Webinars', desc: 'Join live AMAs and sessions.', icon: <Video size={28} color="#8b5cf6" />, color: '#f5f3ff', link: '/webinars' },
               { title: 'Leaderboard', desc: 'Track contributors and ranks.', icon: <Award size={28} color="#d97706" />, color: '#fffbeb', link: '/leaderboard' },
             ].map((item, i) => (
-              <Grid item xs={12} sm={6} md={3} key={i}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
                 <motion.div variants={fadeInUp} style={{ height: '100%' }}>
                   <Paper sx={{ p: 4, borderRadius: '24px', height: '100%', transition: 'all 0.3s ease-in-out', '&:hover': { transform: 'translateY(-6px)', boxShadow: '0 15px 35px rgba(0,0,0,0.06)', '& .explore-underline': { width: '100%' } }, display: 'flex', flexDirection: 'column', bgcolor: '#fff', border: '1px solid rgba(0,0,0,0.04)' }} elevation={0}>
                     <Box sx={{ bgcolor: item.color, width: 64, height: 64, borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
@@ -179,7 +179,7 @@ export default function HomePage() {
               { name: 'Dr. Lee', points: 290, medal: '#94a3b8', img: 2 },
               { name: 'Dr. Patel', points: 270, medal: '#f59e0b', img: 3 },
             ].map((c, i) => (
-              <Grid item xs={12} md={4} key={i}>
+              <Grid size={{ xs: 12, md: 4 }} key={i}>
                 <Paper sx={{ p: 3, borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(0,0,0,0.05)', transition: 'all 0.2s ease-in-out', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' } }} elevation={0}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
                     <img src={`https://i.pravatar.cc/100?img=${c.img + 20}`} alt={c.name} style={{ width: 60, height: 60, borderRadius: '50%' }} />
