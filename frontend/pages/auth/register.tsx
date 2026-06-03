@@ -192,6 +192,10 @@ export default function Register() {
     const emergencyPhoneValidationError = getOptionalPhoneError(form.emergencyContactPhone, 'emergency contact number');
     const dob = form.dateOfBirth ? new Date(form.dateOfBirth) : null;
     const today = new Date();
+    if(form.userType=='doctor' && parseInt(form.experience,10)<0) {
+      setError('Experience cannot be a negative number.');
+      return;
+    }
     if(form.userType === 'doctor' && !/^[A-Za-z0-9\/\- ]{4,30}$/.test(form.licenseNumber)) {
       setError('License number must be 4-30 characters and can include letters, numbers, spaces, slashes, or dashes.');
       return;
