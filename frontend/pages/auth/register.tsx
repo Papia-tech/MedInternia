@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
 import { Container, Typography, TextField, Button, Box, Alert, MenuItem, Card, Avatar, Fade, Grow, Stack, LinearProgress, IconButton, InputAdornment } from '@mui/material';
 import api from '../../utils/api';
@@ -52,7 +52,7 @@ export default function Register() {
   const [otherMedicalHistoryValue, setotherMedicalHistoryValue] = useState('');
   const [otherAllergies, setotherAllergies] = useState(false);
   const [otherAllergiesValue, setotherAllergiesValue] = useState('');
-
+  const [doctors, setDoctors] = useState<any[]>([]);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -78,6 +78,24 @@ export default function Register() {
     if (form.userType === 'intern') return requiredFieldsStep2.intern;
     return [];
   }
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const res = await api.get('/doctors');
+
+        console.log('Doctors:', res.data.data.doctors);
+
+        setDoctors(res.data.data.doctors || []);
+      } catch (err) {
+        console.error('Failed to fetch doctors', err);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
+
   function getProgress() {
     if (step === 1) {
       const filled = requiredFieldsStep1.filter(f => form[f]);
@@ -262,10 +280,6 @@ export default function Register() {
       }
     }
     if (form.userType === 'intern') {
-      if (form.mentorDoctor && !/^[A-Za-z0-9\/\- ]{4,30}$/.test(form.mentorDoctor)) {
-        setError('Enter a valid Mentor Doctor ID');
-        return;
-      }
       if (!/^[A-Za-z\s.,'-]{3,100}$/.test(form.medicalSchool)) {
         setError('Enter a valid Medical School name');
         return;
@@ -600,7 +614,28 @@ export default function Register() {
                             <MenuItem value="6+">6th Year+</MenuItem>
                           </TextField>
                           <TextField label="Interests (comma separated)" name="interests" fullWidth margin="normal" value={form.interests} onChange={handleChange} />
-                          <TextField label="Mentor Doctor ID (optional)" name="mentorDoctor" fullWidth margin="normal" value={form.mentorDoctor} onChange={handleChange} />
+                          <TextField
+                            select
+                            label="Mentor Doctor (Optional)"
+                            name="mentorDoctor"
+                            fullWidth
+                            margin="normal"
+                            value={form.mentorDoctor}
+                            onChange={handleChange}
+                          >
+                            <MenuItem value="">
+                              No Mentor Selected
+                            </MenuItem>
+
+                            {doctors.map((doctor) => (
+                              <MenuItem key={doctor._id} value={doctor._id}>
+                                Dr. {doctor.firstName} {doctor.lastName}
+                                {doctor.specialization
+                                  ? ` - ${doctor.specialization}`
+                                  : ''}
+                              </MenuItem>
+                            ))}
+                          </TextField>
                         </Box>
                       </Fade>
                     )}
