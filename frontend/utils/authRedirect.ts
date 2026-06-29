@@ -1,6 +1,6 @@
 import type { NextRouter } from "next/router";
 
-export const protectedLandingPaths = ["/cases", "/jobs", "/webinars", "/leaderboard", "/about"];
+export const protectedLandingPaths = ["/cases", "/jobs", "/webinars", "/leaderboard"];
 
 export const hasAuthToken = () =>
   typeof window !== "undefined" && Boolean(localStorage.getItem("token"));
