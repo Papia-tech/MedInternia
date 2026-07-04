@@ -7,6 +7,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import connectDB from './utils/database';
 import { createDefaultBadges } from './utils/createDefaultBadges';
 import apiRoutes from './routes/api';
@@ -124,6 +125,7 @@ app.use('/uploads', (req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
 app.get('/health', (req: Request, res: Response) => {

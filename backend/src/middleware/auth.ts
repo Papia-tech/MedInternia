@@ -20,16 +20,21 @@ export interface AuthRequest extends Request {
 
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const authHeader = req.headers.authorization;
+    let token: string | undefined;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7);
+    } else if (req.cookies?.token) {
+      token = req.cookies.token;
+    }
+
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'Access token is required'
       });
     }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
     if (await isTokenBlacklisted(token)) {
       return res.status(401).json({

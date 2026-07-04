@@ -214,6 +214,16 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const userResponse = user.toObject() as any;
   delete userResponse.password;
 
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+
+  res.cookie('token', token, cookieOptions);
+  res.cookie('auth_status', 'authenticated', { ...cookieOptions, httpOnly: false });
+
   res.status(201).json({
     success: true,
     message: "User registered successfully",
@@ -322,6 +332,16 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   // Remove password from response
   const userResponse = user.toObject() as any;
   delete userResponse.password;
+
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+
+  res.cookie('token', token, cookieOptions);
+  res.cookie('auth_status', 'authenticated', { ...cookieOptions, httpOnly: false });
 
   res.json({
     success: true,
@@ -514,10 +534,17 @@ export const resetPassword = asyncHandler(
 // Logout
 export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  let token: string | undefined;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.cookies?.token) {
+    token = req.cookies.token;
+  }
+
+  if (!token) {
     throw new AppError('No token provided', 400);
   }
-  const token = authHeader.substring(7);
 
   const rawDecoded = jwt.decode(token) as { exp?: number } | null;
   const remainingMs = rawDecoded?.exp
@@ -527,5 +554,7 @@ export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
     await blacklistToken(token, new Date(Date.now() + remainingMs));
   }
 
+  res.clearCookie('token');
+  res.clearCookie('auth_status');
   res.json({ success: true, message: 'Logged out successfully' });
 });

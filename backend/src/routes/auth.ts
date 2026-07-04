@@ -50,5 +50,8 @@ router.post(
 );
 router.put('/profile', authenticate, updateProfile);
 router.put('/change-password', authenticate, changePassword);
+router.get('/validate-token', authenticate, (req, res) => {
+  res.json({ valid: true, user: (req as any).user });
+});
 
 export default router;

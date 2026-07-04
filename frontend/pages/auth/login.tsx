@@ -8,8 +8,10 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { getSafeRedirectPath } from '../../utils/authRedirect';
 import AuthLayout, { AuthCard } from '../../components/auth/AuthLayout';
+import { useAuth, setGlobalToken } from '../../context/AuthContext';
 
 export default function Login() {
+  const { login: authLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -35,8 +37,8 @@ export default function Login() {
   const user = res.data?.data?.user;
   const role = user?.role || '';
   const userId = user?._id || user?.id || '';
-  localStorage.setItem('token', token);
-  localStorage.setItem('userId', userId);
+  setGlobalToken(token);
+  authLogin(token, userId, user);
   router.push(getSafeRedirectPath(router.query.redirect));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');

@@ -7,9 +7,11 @@ import { useRouter } from 'next/router';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AuthLayout, { AuthCard } from '../../components/auth/AuthLayout';
+import { useAuth, setGlobalToken } from '../../context/AuthContext';
 
 
 export default function Register() {
+  const { login: authLogin } = useAuth();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -354,10 +356,10 @@ export default function Register() {
       if (!payload.dateOfBirth) delete payload.dateOfBirth;
       if (!payload.gender) delete payload.gender;
       const res = await api.post('/auth/register', payload);
+      const token = res.data.data.token;
       const user = res.data.data.user;
-      localStorage.setItem('token', res.data.data.token);
-      localStorage.setItem('userId', user._id || user.id);
-      localStorage.setItem('user', JSON.stringify(user));
+      setGlobalToken(token);
+      authLogin(token, user._id || user.id, user);
 
       router.push('/dashboard');
     } catch (err: any) {
