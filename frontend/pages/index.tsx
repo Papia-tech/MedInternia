@@ -338,8 +338,44 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
             >
-              <Box sx={{ position: 'relative', overflow: 'hidden', px: { xs: 1, sm: 2 }, py: 2 }}>
-                <HeroProductPreview />
+              <Box sx={{ position: 'relative', px: { xs: 1, sm: 2 }, py: 2 }}>
+                {/* Decorative blob */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -40,
+                    right: -40,
+                    width: '100%',
+                    height: '100%',
+                    bgcolor: '#e0f2fe',
+                    borderRadius: '50%',
+                    zIndex: 0,
+                    filter: 'blur(60px)',
+                    opacity: 0.8,
+                    pointerEvents: 'none',
+                  }}
+                />
+
+                <Box
+                  sx={{
+                    position: 'relative',
+                    zIndex: 1,
+                    borderRadius: '32px',
+                    overflow: 'hidden',
+                    boxShadow: '0 24px 48px rgba(0, 0, 0, 0.12)',
+                    border: '8px solid #fff',
+                    width: '100%',
+                    maxWidth: 540,
+                    mx: 'auto',
+                    bgcolor: '#000',
+                    transition: 'transform 0.3s ease-in-out',
+                    '&:hover': { transform: 'scale(1.01)' },
+                  }}
+                >
+                  <video width="100%" autoPlay loop muted playsInline style={{ display: 'block' }}>
+                    <source src="/anushka_video.mp4" type="video/mp4" />
+                  </video>
+                </Box>
 
                 <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6, duration: 0.5 }}>
                   <Paper
