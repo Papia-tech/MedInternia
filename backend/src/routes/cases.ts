@@ -71,7 +71,7 @@ router.get('/:id/ai-suggestions', authenticate, getCaseAISuggestions);
 router.post('/:caseId/comments/:commentId/pin', authenticate, requirePermission('comment:moderate'), pinComment);
 router.post('/:caseId/comments/:commentId/unpin', authenticate, requirePermission('comment:moderate'), unpinComment);
 // Get all pinned comments for a case
-router.get('/:caseId/pinned-comments', getPinnedComments);
+router.get('/:caseId/pinned-comments', authenticate, getPinnedComments);
 // Toggle repost permission (case owner only)
 router.patch('/:id/repost-permission', authenticate, requirePermission('case:update'), toggleRepostPermission);
 // Repost a case (if allowed)
