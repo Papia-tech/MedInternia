@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
 import type { AppRole } from '../middleware/permissions';
 
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET === 'fallback_secret') {
+  console.error('CRITICAL: JWT_SECRET must be set to a secure random value in production');
+  process.exit(1);
+}
+
 export interface JwtPayload {
   userId: string;
   email: string;
